@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:rowCount="3"
+    android:columnCount="2">
+    <TextView
+        android:layout_row="0"
+        android:layout_rowSpan="1"
+        android:layout_column="0"
+        android:layout_columnSpan="1"
+        android:id="@+id/score"
+        android:text="Score"
+        android:layout_gravity="fill_horizontal"
+        android:minWidth="100dp" />
+    <TextView
+        android:layout_row="0"
+        android:layout_rowSpan="1"
+        android:layout_column="1"
+        android:layout_columnSpan="1"
+        android:id="@+id/best"
+        android:text="best"
+        android:layout_gravity="fill_horizontal"
+        android:minWidth="100dp" />
+    <Button
+        android:id="@+id/reset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/reset"
+        android:layout_row="2"
+        android:layout_rowSpan="1"
+        android:layout_column="1"
+        android:layout_columnSpan="1"
+        android:layout_gravity="center_horizontal" />
+    <Button
+        android:id="@+id/test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/test"
+        android:layout_row="2"
+        android:layout_rowSpan="1"
+        android:layout_column="0"
+        android:layout_columnSpan="1"
+        android:layout_gravity="center_horizontal" />
+    <TextView
+        android:layout_row="1"
+        android:layout_rowSpan="1"
+        android:layout_column="0"
+        android:layout_columnSpan="2"
+        android:id="@+id/board"
+        android:text="Board"
+        android:layout_gravity="fill"
+        android:textStyle="normal"
+        android:typeface="monospace"
+        android:textAlignment="center" />
+</GridLayout>
