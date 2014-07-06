@@ -6,7 +6,8 @@ module GameGrid =
     type Row = int list
     type Grid = Row list
     type Score = int
-    type Game = { score :Score ; grid :Grid}
+    type GameStatus = Over | Won | Running
+    type Game = {score :Score ; grid :Grid; status :GameStatus}
 
     val equal : Game -> Game -> bool
     val toString : Game -> string

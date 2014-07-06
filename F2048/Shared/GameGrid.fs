@@ -9,20 +9,24 @@ module GameGrid =
     type Grid = Row list
     type ScoredGrid = (int*int) list list
     type Score = int
-    type Game = { score :Score ; grid :Grid}
-
+    type GameStatus = Over | Won | Running
+    type Game = {score :Score ; grid :Grid ; status : GameStatus}
+   
     let dim = 4
     let emptyGrid :Grid =
         List.init dim (fun _ -> List.init dim (fun _ -> 0))
 
     let newTile grid =
         let rnd = new System.Random()
+        let randomValue () =
+            let values = [|2;2;2;2;2;2;2;2;2;4|]
+            values.[rnd.Next(0,9)]
         let rec choose (innerRnd :System.Random) (innerArray :int array []) =
             let row = innerArray.[innerRnd.Next(0, dim)]
             let index = innerRnd.Next(0,dim)
             match row.[index] with
             |0 ->
-                row.[index] <- 2
+                row.[index] <- randomValue ()
                 innerArray
             |_ ->
                 choose innerRnd innerArray
@@ -34,7 +38,7 @@ module GameGrid =
         |> Array.toList
 
     let create () :Game =
-        {score=0; grid = (newTile emptyGrid)}
+        {score=0; grid = (newTile emptyGrid) ; status = Running}
     
     let merge_left (input :Row) :(int* int) list = 
         let pad length inp =
@@ -103,11 +107,25 @@ module GameGrid =
         List.zip a b
         |> List.forall (fun (x,y) -> x = y)
 
+    let statusFromGrid g =
+        let values = (List.collect (fun x ->x) g)
+        if List.exists (fun x -> x = 2048) values then
+            Won
+        else 
+            if List.exists (fun x -> x = 0) values then
+                Running
+            else
+                let notFinished = [Left;Right;Up;Down]
+                                    |> List.map (fun m -> extractPoint (moveGrid m g))
+                                    |> List.exists (fun (_,p) -> p <> 0)
+                if notFinished then Running else Over
+
     let move (g: Game) (m :Move) =
         let gr = g.grid
         let sc = g.score
-        let newGrid, points = extractPoint (moveGrid m gr)
-        {score = sc + points; grid = (if not (isSameGrid newGrid gr) then (newTile newGrid) else newGrid)}
+        let mergedGrid, points = extractPoint (moveGrid m gr)
+        let newGrid = if not (isSameGrid mergedGrid gr) then (newTile mergedGrid) else mergedGrid
+        {status = (statusFromGrid newGrid); score = sc + points; grid = newGrid}
 
     let equal a b =
             a.score = b.score && a.grid = b.grid

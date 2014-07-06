@@ -10,20 +10,19 @@ open F2048.Bot
 module CanopyPlayer =
     let baseURL = "http://gabrielecirulli.github.io/2048/"
 
-    type Score = string * int * string
+    type Score = string * int * int
 
     type Position = int * int
     type Value = int
     type Tile = Position * Value
     type Grid = int [][]
-    type GameStatus = Over | Won | Running
 
  //   type Move = Left | Right | Up | Down
    
     let statusToString = function 
-                        | Over -> "Lost"
-                        | Won -> "Won"
-                        | Running -> "Running"
+                        | F2048.GameGrid.Over -> "Lost"
+                        | F2048.GameGrid.Won -> "Won"
+                        | F2048.GameGrid.Running -> "Running"
 
     let tileToGrid tiles :Grid =
         let defaultGrid = Array.init 4 (fun _ -> Array.init 4 (fun _ -> 0)) in
@@ -32,11 +31,14 @@ module CanopyPlayer =
                                                                acc ) defaultGrid
         
     let gridToGame (grid :Grid) :F2048.GameGrid.Game =
-        {score = 0; grid = Array.toList (Array.map (fun x -> Array.toList x) grid)}
+        {status = F2048.GameGrid.Running; score = 0; grid = Array.toList (Array.map (fun x -> Array.toList x) grid)}
+
+    let gameScore () = 
+        let sc = (element ".score-container").Text
+        int (sc.Split([|'+'|]).[0])
 
     let addScore (game :F2048.GameGrid.Game) =
-         let sc = (element ".score-container").Text
-         { game with score = int (sc.Split([|'+'|]).[0])}
+         { game with score = gameScore() }
 
     let newTile v x y :Tile =
         ((x , y), v)
@@ -65,12 +67,12 @@ module CanopyPlayer =
 
     let rec doPlay engine iter :Score =
       let gameStatus = match (someElement ".game-over") with
-                        |Some (x) -> Over
+                        |Some (x) -> F2048.GameGrid.Over
                         | None -> match (someElement ".game-won") with
-                                    |Some (x) -> Won
-                                    | None -> Running
+                                    |Some (x) -> F2048.GameGrid.Won
+                                    | None -> F2048.GameGrid.Running
       match gameStatus with
-        | Running ->
+        | F2048.GameGrid.Running ->
             let steps = element ".tile-container"
                              |> elementsWithin ".tile"
                              |> htmlToTile
@@ -83,10 +85,13 @@ module CanopyPlayer =
                              |> ignore in
              doPlay engine (iter+1)
         | x ->
-              sleep(1)
-              let score = (element ".score-container").Text in
-              quit()
-              (statusToString x, iter, score)
+            sleep(1)
+            let score = gameScore()
+            let filename = DateTime.Now.ToString("MMM-d_HH-mm-ss-fff")
+            ignore(screenshot "." filename)
+            sleep(1)
+            quit()
+            (statusToString x, iter, score)
 
     let play (engine: F2048.Bot.fct) :Score =
         start firefox
