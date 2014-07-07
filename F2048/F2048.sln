@@ -7,6 +7,8 @@ Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "Droid_2048", "Droid_2048\Dr
 EndProject
 Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "console_bot", "console_bot\console_bot.fsproj", "{39A01930-C4B6-4CEB-A318-1DDF3DB735E7}"
 EndProject
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "test_bot", "test_bot\test_bot.fsproj", "{6562EA48-CB53-42E4-91A9-E859962AFD1F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -17,6 +19,10 @@ Global
 		{39A01930-C4B6-4CEB-A318-1DDF3DB735E7}.Debug|x86.Build.0 = Debug|x86
 		{39A01930-C4B6-4CEB-A318-1DDF3DB735E7}.Release|x86.ActiveCfg = Release|x86
 		{39A01930-C4B6-4CEB-A318-1DDF3DB735E7}.Release|x86.Build.0 = Release|x86
+		{6562EA48-CB53-42E4-91A9-E859962AFD1F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6562EA48-CB53-42E4-91A9-E859962AFD1F}.Debug|x86.Build.0 = Debug|Any CPU
+		{6562EA48-CB53-42E4-91A9-E859962AFD1F}.Release|x86.ActiveCfg = Release|Any CPU
+		{6562EA48-CB53-42E4-91A9-E859962AFD1F}.Release|x86.Build.0 = Release|Any CPU
 		{8326B85D-833E-4779-B915-1199DE4D027A}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{8326B85D-833E-4779-B915-1199DE4D027A}.Debug|x86.Build.0 = Debug|Any CPU
 		{8326B85D-833E-4779-B915-1199DE4D027A}.Release|x86.ActiveCfg = Release|Any CPU

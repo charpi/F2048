@@ -31,7 +31,7 @@ module CanopyPlayer =
                                                                acc ) defaultGrid
         
     let gridToGame (grid :Grid) :F2048.GameGrid.Game =
-        {status = F2048.GameGrid.Running; score = 0; grid = Array.toList (Array.map (fun x -> Array.toList x) grid)}
+        F2048.GameGrid.fromArray grid
 
     let gameScore () = 
         let sc = (element ".score-container").Text

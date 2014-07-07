@@ -7,9 +7,14 @@ module GameGrid =
     type Grid = Row list
     type Score = int
     type GameStatus = Over | Won | Running
-    type Game = {score :Score ; grid :Grid; status :GameStatus}
+    type Randomizer = int -> int
+    type Game = {score :Score; grid :Grid; status :GameStatus; randomizer :Randomizer}
 
     val equal : Game -> Game -> bool
     val toString : Game -> string
     val move : Game -> Move -> Game
-    val create : unit -> Game
+    val create : Game
+    val createWithRandomizer : Randomizer -> Game
+    val fromArray : (int [][] -> Game)
+    val fromArrayWithRandomizer : Randomizer -> int [][] -> Game
+    val defaultRandomizer :Randomizer

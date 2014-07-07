@@ -18,7 +18,7 @@ open F2048.Bot
 type MainActivity () =
     inherit Activity ()
 
-    let mutable game = F2048.GameGrid.create()
+    let mutable game = F2048.GameGrid.create
     let mutable originX = 0.0
     let mutable originY = 0.0
 
@@ -96,7 +96,7 @@ type MainActivity () =
             best.Text <- readBest ()
 
         button.Click.Add (fun args -> 
-            game <- F2048.GameGrid.create()
+            game <- F2048.GameGrid.create
             if (int best.Text) < (int score.Text) then writeBest score.Text else ()
             refreshGame ()
         )

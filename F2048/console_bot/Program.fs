@@ -7,7 +7,7 @@ open System
 open System.Diagnostics
 
 let oneGame () =
-    let game = F2048.GameGrid.create()
+    let game = F2048.GameGrid.create
     let rec play iter engine g same =
             if same = 10 then
                 printfn "%s" (F2048.GameGrid.toString g)

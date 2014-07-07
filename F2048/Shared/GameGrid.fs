@@ -10,36 +10,34 @@ module GameGrid =
     type ScoredGrid = (int*int) list list
     type Score = int
     type GameStatus = Over | Won | Running
-    type Game = {score :Score ; grid :Grid ; status : GameStatus}
+    type Randomizer = int -> int
+    type Game = {score :Score ;grid :Grid; status :GameStatus; randomizer :Randomizer}
    
     let dim = 4
+
     let emptyGrid :Grid =
         List.init dim (fun _ -> List.init dim (fun _ -> 0))
 
-    let newTile grid =
-        let rnd = new System.Random()
+    let newTile randomizer grid =
         let randomValue () =
             let values = [|2;2;2;2;2;2;2;2;2;4|]
-            values.[rnd.Next(0,9)]
-        let rec choose (innerRnd :System.Random) (innerArray :int array []) =
-            let row = innerArray.[innerRnd.Next(0, dim)]
-            let index = innerRnd.Next(0,dim)
+            values.[randomizer 9]
+        let rec choose (innerArray :int array []) =
+            let row = innerArray.[randomizer dim]
+            let index = randomizer dim
             match row.[index] with
             |0 ->
                 row.[index] <- randomValue ()
                 innerArray
             |_ ->
-                choose innerRnd innerArray
+                choose innerArray
         grid
         |> List.map List.toArray
         |> List.toArray
-        |> choose rnd
+        |> choose
         |> Array.map Array.toList
         |> Array.toList
 
-    let create () :Game =
-        {score=0; grid = (newTile emptyGrid) ; status = Running}
-    
     let merge_left (input :Row) :(int* int) list = 
         let pad length inp =
              List.append inp (List.init (length - inp.Length) (fun _ -> (0,0)))
@@ -120,12 +118,26 @@ module GameGrid =
                                     |> List.exists (fun (_,p) -> p <> 0)
                 if notFinished then Running else Over
 
+    let defaultRandomizer :Randomizer =
+        let rnd = new System.Random()
+        (fun value -> rnd.Next(0, value))
+
+    let createWithRandomizer (randomizer :Randomizer) :Game =
+        {score=0; grid = (newTile randomizer emptyGrid); status = Running; randomizer = randomizer}
+
+    let create = createWithRandomizer defaultRandomizer
+        
+    let fromArrayWithRandomizer  (randomizer :Randomizer) (grid :int [][]) :Game =
+        {score = 0; grid = Array.toList (Array.map (fun x -> Array.toList x) grid); status = Running; randomizer = randomizer}
+
+    let fromArray = fromArrayWithRandomizer defaultRandomizer
+
     let move (g: Game) (m :Move) =
         let gr = g.grid
         let sc = g.score
         let mergedGrid, points = extractPoint (moveGrid m gr)
-        let newGrid = if not (isSameGrid mergedGrid gr) then (newTile mergedGrid) else mergedGrid
-        {status = (statusFromGrid newGrid); score = sc + points; grid = newGrid}
+        let newGrid = if not (isSameGrid mergedGrid gr) then (newTile g.randomizer mergedGrid) else mergedGrid
+        {g with status = (statusFromGrid newGrid); score = sc + points; grid = newGrid}
 
     let equal a b =
             a.score = b.score && a.grid = b.grid
@@ -134,3 +146,4 @@ module GameGrid =
         g.grid
         |> List.map (fun row -> row |> List.fold (fun acc v -> sprintf "%s %5d" acc v) "")
         |> List.fold (fun acc row -> sprintf "%s\n%s" acc row) ""
+
