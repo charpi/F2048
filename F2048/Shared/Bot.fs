@@ -22,14 +22,22 @@ module Bot =
         let applyPath game path =
             let evaluatedGame = List.fold (fun acc p -> GameGrid.move acc p) game path
             (path, evaluatedGame.score)
+        let asyncApply g path = async {
+            return List.map (applyPath g) path
+        }
         let paths = combs [GameGrid.Left; GameGrid.Down; GameGrid.Up; GameGrid.Right] 5
-        let best_paths = paths
-                        |> List.map (applyPath game)
-                        |> List.maxBy (fun (_,score) -> score)
-        let p, _ = best_paths
-        let rec ensureMoves p = match p with
-                                | [] -> GameGrid.Left
-                                | x :: xs -> if ( GameGrid.equal (GameGrid.move game x) game) then ensureMoves xs else x
-        ensureMoves p
-
-
+        let isFirstMoveMoving path = match path with
+                                        | [] -> false
+                                        | x :: xs ->  if ( GameGrid.equal (GameGrid.move game x) game) then false else true
+        let rec firstMoving paths = match paths with
+                                    | [] -> GameGrid.Left
+                                    | x :: xs -> if (isFirstMoveMoving x) then List.head(x) else firstMoving xs
+        paths
+        |> List.map (fun p -> async { return (applyPath game p)})
+        |> Async.Parallel
+        |> Async.RunSynchronously
+        |> Array.toList
+        |> List.sortBy (fun (_,score) -> score)
+        |> List.rev
+        |> List.map (fun (p,_) -> p)
+        |> firstMoving
