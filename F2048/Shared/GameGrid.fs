@@ -20,14 +20,14 @@ module GameGrid =
 
     let newTile randomizer grid =
         let randomValue () =
-            let values = [|2;2;2;2;2;2;2;2;2;4|]
-            values.[randomizer 9]
+            let values = [|2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;4|]
+            values.[randomizer 20]
         let rec choose (innerArray :int array []) =
             let row = innerArray.[randomizer dim]
             let index = randomizer dim
             match row.[index] with
             |0 ->
-                row.[index] <- randomValue ()
+                row.[index] <- randomValue()
                 innerArray
             |_ ->
                 choose innerArray
