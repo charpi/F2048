@@ -12,8 +12,11 @@
         android:layout_columnSpan="1"
         android:id="@+id/score"
         android:text="Score"
-        android:layout_gravity="fill_horizontal"
-        android:minWidth="100dp" />
+        android:layout_gravity="center_horizontal"
+        android:minWidth="100dp"
+        android:textStyle="normal"
+        android:typeface="monospace"
+        android:textSize="24dp" />
     <TextView
         android:layout_row="0"
         android:layout_rowSpan="1"
@@ -21,8 +24,11 @@
         android:layout_columnSpan="1"
         android:id="@+id/best"
         android:text="best"
-        android:layout_gravity="fill_horizontal"
-        android:minWidth="100dp" />
+        android:layout_gravity="center_horizontal"
+        android:minWidth="100dp"
+        android:typeface="monospace"
+        android:textSize="24dp"
+        android:textStyle="normal" />
     <Button
         android:id="@+id/reset"
         android:layout_width="wrap_content"
@@ -53,5 +59,6 @@
         android:layout_gravity="fill"
         android:textStyle="normal"
         android:typeface="monospace"
-        android:textAlignment="center" />
+        android:textAlignment="center"
+        android:textSize="24dp" />
 </GridLayout>

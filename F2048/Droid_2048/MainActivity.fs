@@ -14,7 +14,7 @@ open Mono.Data.Sqlite
 open F2048.GameGrid
 open F2048.Bot
 
-[<Activity (Label = "Droid_2048", MainLauncher = true)>]
+[<Activity (Label = "F2048", MainLauncher = true)>]
 type MainActivity () =
     inherit Activity ()
 
@@ -79,31 +79,36 @@ type MainActivity () =
     override this.OnCreate (bundle) =
 
         base.OnCreate (bundle)
-
-        // Set our view from the "main" layout resource
         this.SetContentView (Resource_Layout.Main)
 
-        // Get our button from the layout resource, and attach an event to it
+        let oldBest = int (readBest())
         let button = this.FindViewById<Button>(Resource_Id.reset)
         let score = this.FindViewById<TextView>(Resource_Id.score)
         let board = this.FindViewById<TextView>(Resource_Id.board)
         let best = this.FindViewById<TextView>(Resource_Id.best)
         let test = this.FindViewById<TextView>(Resource_Id.test)
+        test .Text <- "Bot"
 
         let refreshGame () = 
-            score.Text <- sprintf "%d" (game.score)
+            score.Text <- sprintf "Score\n%d" (game.score)
             board.Text <- F2048.GameGrid.toString game
-            best.Text <- readBest ()
+            best.Text <- sprintf "Best\n%s" (readBest ())
 
         button.Click.Add (fun args -> 
+            if oldBest < game.score then writeBest (string game.score) else ()
             game <- F2048.GameGrid.create
-            if (int best.Text) < (int score.Text) then writeBest score.Text else ()
             refreshGame ()
         )
 
         test.Click.Add (fun args ->
-                test.Text <- "Running"
+                test.Text <- " Bot Running"
+                test.Enabled <- false
                 let refresh = Action refreshGame
+                let endBot = Action (fun () ->
+                                    test.Text <- "Bot"
+                                    test.Enabled <- true
+                                    refreshGame ()
+                                    )
                 let a = async { let rec tmp = function 
                                                 | 0 -> ()
                                                 | n -> 
@@ -111,9 +116,8 @@ type MainActivity () =
                                                     game <- F2048.GameGrid.move game nextMove
                                                     ignore(board.Post(refresh))
                                                     tmp (n-1)
-                                tmp 500
-                                test.Text <- "Bot done"
-                                ignore(board.Post(refresh))
+                                tmp 100
+                                ignore(board.Post(endBot))
                             
                         }
                 Async.Start a
