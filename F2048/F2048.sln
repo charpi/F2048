@@ -33,6 +33,6 @@ Global
 		{E960CD10-BCB0-4755-BC37-8134827F3240}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = console_bot\console_bot.fsproj
+		StartupItem = Droid_2048\Droid_2048.fsproj
 	EndGlobalSection
 EndGlobal

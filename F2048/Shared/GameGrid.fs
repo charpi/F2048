@@ -21,7 +21,7 @@ module GameGrid =
     let newTile randomizer grid =
         let randomValue () =
             let values = [|2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;4|]
-            values.[randomizer 20]
+            values.[randomizer 19]
         let rec choose (innerArray :int array []) =
             let row = innerArray.[randomizer dim]
             let index = randomizer dim
@@ -147,3 +147,18 @@ module GameGrid =
         |> List.map (fun row -> row |> List.fold (fun acc v -> sprintf "%s %5d" acc v) "")
         |> List.fold (fun acc row -> sprintf "%s\n%s" acc row) ""
 
+    let toStringWithScore (g :Game) =
+        let grid = g.grid
+                |> List.map (fun row -> row |> List.fold (fun acc v -> sprintf "%s %d" acc v) "")
+                |> List.fold (fun acc row -> sprintf "%s\n%s" acc row) ""
+        sprintf "%d%s" g.score grid
+
+    let fromStringWithScore (s :String) = 
+        let a = s.Split([|'\n'|])
+        let score = int a.[0]
+        let g = a.[1..]
+                |> Array.map (fun (x :String) -> (x.Trim() ))
+                |> Array.map (fun (x :String) -> Array.toList(x.Split([|' '|])))
+                |> Array.toList
+                |> List.map (fun l -> List.map int l)
+        {score = score; grid = g; status = Running; randomizer = defaultRandomizer}

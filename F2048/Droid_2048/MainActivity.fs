@@ -1,6 +1,9 @@
 ﻿namespace Droid_2048
 
 open System
+open System.Data
+
+open Mono.Data.Sqlite
 
 open Android.App
 open Android.Content
@@ -8,8 +11,6 @@ open Android.OS
 open Android.Runtime
 open Android.Views
 open Android.Widget
-open System.Data
-open Mono.Data.Sqlite
 
 open F2048.GameGrid
 open F2048.Bot
@@ -18,6 +19,7 @@ open F2048.Bot
 type MainActivity () =
     inherit Activity ()
 
+    let mutable botRunning = false
     let mutable game = F2048.GameGrid.create
     let mutable originX = 0.0
     let mutable originY = 0.0
@@ -37,8 +39,10 @@ type MainActivity () =
         tmp.Open()
         tmp
 
-    let initdb = 
-        let commands = [ "CREATE TABLE [Game] (Key ntext PRIMARY KEY, Value ntext);"; "INSERT INTO [Game] ([Key], [Value]) VALUES ('best', '0')"]
+    let initdb =
+        let g = F2048.GameGrid.create
+        let commands = [ "CREATE TABLE [Game] (Key ntext PRIMARY KEY, Value ntext);" ; "INSERT INTO [Game] ([Key], [Value]) VALUES ('best', '0') , ('game', '" + (F2048.GameGrid.toStringWithScore g) + "')"
+                        ]
         if (firstBoot = false) then 
             ()
         else
@@ -63,6 +67,19 @@ type MainActivity () =
         ctx.CommandText <- cmd
         ignore(ctx.ExecuteNonQuery())
 
+    let writeGame (g :Game) =
+        let cmd = "UPDATE [Game] set Value = '" + (F2048.GameGrid.toStringWithScore g) + "' WHERE Key = 'game'"
+        let ctx = cnx.CreateCommand()
+        ctx.CommandText <- cmd
+        ignore(ctx.ExecuteNonQuery())
+
+    let readGame () =
+        let cmd = "SELECT [Value] from [Game] where [Key] = 'game'"
+        let ctx = cnx.CreateCommand()
+        ctx.CommandText <- cmd
+        let reader = ctx.ExecuteReader()
+        ignore (reader.Read())
+        F2048.GameGrid.fromStringWithScore (reader.GetString(0))
 
     let play (dx :float) (dy :float) =
         let absX = abs dx
@@ -76,12 +93,14 @@ type MainActivity () =
         else
             game
 
+    let refreshGame (score :TextView) (board :TextView) = 
+            score.Text <- sprintf "Score\n%d" (game.score)
+            board.Text <- F2048.GameGrid.toString game
+
     override this.OnCreate (bundle) =
 
         base.OnCreate (bundle)
         this.SetContentView (Resource_Layout.Main)
-
-        let oldBest = int (readBest())
         let button = this.FindViewById<Button>(Resource_Id.reset)
         let score = this.FindViewById<TextView>(Resource_Id.score)
         let board = this.FindViewById<TextView>(Resource_Id.board)
@@ -89,25 +108,24 @@ type MainActivity () =
         let test = this.FindViewById<TextView>(Resource_Id.test)
         test .Text <- "Bot"
 
-        let refreshGame () = 
-            score.Text <- sprintf "Score\n%d" (game.score)
-            board.Text <- F2048.GameGrid.toString game
-            best.Text <- sprintf "Best\n%s" (readBest ())
+        let oldBest = int (readBest())
 
         button.Click.Add (fun args -> 
             if oldBest < game.score then writeBest (string game.score) else ()
             game <- F2048.GameGrid.create
-            refreshGame ()
+            refreshGame score board
+            best.Text <- sprintf "Best\n%s" (readBest ())
         )
 
         test.Click.Add (fun args ->
                 test.Text <- " Bot Running"
                 test.Enabled <- false
-                let refresh = Action refreshGame
+                let refresh = Action (fun() -> refreshGame score board)
                 let endBot = Action (fun () ->
                                     test.Text <- "Bot"
                                     test.Enabled <- true
-                                    refreshGame ()
+                                    refreshGame score board 
+                                    botRunning <- false
                                     )
                 let a = async { let rec tmp = function 
                                                 | 0 -> ()
@@ -120,8 +138,10 @@ type MainActivity () =
                                 ignore(board.Post(endBot))
                             
                         }
+                botRunning <- true
                 Async.Start a
         )
+
 
         board.Touch.Add (fun (args :View.TouchEventArgs) ->
              match args.Event.Action with
@@ -134,9 +154,21 @@ type MainActivity () =
                     originX <- 0.0
                     originY <- 0.0
                     game <- (play deltaX deltaY)
-                    refreshGame ()
+                    refreshGame score board
                 | _ ->
                     () // skip
         )
 
-        refreshGame ()
+    override this.OnPause() =
+        base.OnPause()
+        if botRunning then () else (writeGame game)
+
+    override this.OnResume() =
+        base.OnResume()
+        let score = this.FindViewById<TextView>(Resource_Id.score)
+        let board = this.FindViewById<TextView>(Resource_Id.board)
+        if botRunning  then
+            ()
+        else 
+            game <- readGame()
+            refreshGame score board

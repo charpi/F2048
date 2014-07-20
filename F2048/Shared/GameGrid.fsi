@@ -12,6 +12,8 @@ module GameGrid =
 
     val equal : Game -> Game -> bool
     val toString : Game -> string
+    val toStringWithScore : Game -> string
+    val fromStringWithScore : string -> Game
     val move : Game -> Move -> Game
     val create : Game
     val createWithRandomizer : Randomizer -> Game

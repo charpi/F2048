@@ -25,7 +25,7 @@ module Bot =
         let asyncApply g path = async {
             return List.map (applyPath g) path
         }
-        let paths = combs [GameGrid.Left; GameGrid.Down; GameGrid.Up; GameGrid.Right] 5
+        let paths = combs [GameGrid.Left; GameGrid.Down; GameGrid.Up; GameGrid.Right] 3
         let isFirstMoveMoving path = match path with
                                         | [] -> false
                                         | x :: xs ->  if ( GameGrid.equal (GameGrid.move game x) game) then false else true
